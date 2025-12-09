@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YomiTomo - Manga Reading Site</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <a href="/" class="logo">YomiTomo</a>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/admin">Admin</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container">
+    <h1 class="text-center" style="color: var(--primary-color); margin-bottom: 1rem;">Welcome to YomiTomo</h1>
+    <p class="text-center" style="color: var(--text-gray); margin-bottom: 2rem;">Your clean manga reading experience</p>
+    
+    <div id="mangaList" class="bento-grid">
+      <div class="loading">Loading manga...</div>
+    </div>
+  </div>
+
+  <script>
+    // Fetch and display all manga
+    async function loadManga() {
+      try {
+        const response = await fetch('/api/manga');
+        const manga = await response.json();
+        
+        const mangaList = document.getElementById('mangaList');
+        
+        if (manga.length === 0) {
+          mangaList.innerHTML = '<p class="text-center" style="color: var(--text-gray);">No manga available yet. Check back soon!</p>';
+          return;
+        }
+        
+        mangaList.innerHTML = manga.map(m => `
+          <div class="bento-item" onclick="window.location.href='/manga/${m.id}'">
+            ${m.cover_image ? `<img src="${m.cover_image}" alt="${m.title}">` : '<div style="height: 350px; background-color: var(--hover-bg); display: flex; align-items: center; justify-content: center; color: var(--text-gray);">No Cover</div>'}
+            <div class="bento-item-content">
+              <h3 class="bento-item-title">${m.title}</h3>
+              <p class="bento-item-description">${m.description || 'No description available'}</p>
+              ${m.author ? `<p class="bento-item-author">By ${m.author}</p>` : ''}
+            </div>
+          </div>
+        `).join('');
+      } catch (error) {
+        document.getElementById('mangaList').innerHTML = '<p class="error">Failed to load manga</p>';
+      }
+    }
+    
+    loadManga();
+  </script>
+</body>
+</html>

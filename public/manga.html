@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manga Details - YomiTomo</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <a href="/" class="logo">YomiTomo</a>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/admin">Admin</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container">
+    <div id="mangaDetail">
+      <div class="loading">Loading manga details...</div>
+    </div>
+    
+    <div id="chaptersSection" style="display: none;">
+      <h2 style="color: var(--primary-color); margin-bottom: 1rem;">Chapters</h2>
+      <div id="chaptersList" class="chapter-list"></div>
+    </div>
+  </div>
+
+  <script>
+    const mangaId = window.location.pathname.split('/').pop();
+    
+    async function loadMangaDetails() {
+      try {
+        const response = await fetch(`/api/manga/${mangaId}`);
+        const manga = await response.json();
+        
+        document.title = `${manga.title} - YomiTomo`;
+        
+        const detailDiv = document.getElementById('mangaDetail');
+        detailDiv.innerHTML = `
+          <div class="manga-detail">
+            <div>
+              ${manga.cover_image ? `<img src="${manga.cover_image}" alt="${manga.title}" class="manga-cover">` : '<div style="height: 400px; background-color: var(--hover-bg); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--text-gray);">No Cover</div>'}
+            </div>
+            <div class="manga-info">
+              <h1>${manga.title}</h1>
+              ${manga.author ? `<p><strong style="color: var(--primary-color);">Author:</strong> ${manga.author}</p>` : ''}
+              <p><strong style="color: var(--primary-color);">Description:</strong></p>
+              <p style="color: var(--text-light); line-height: 1.6;">${manga.description || 'No description available'}</p>
+            </div>
+          </div>
+        `;
+        
+        if (manga.chapters && manga.chapters.length > 0) {
+          document.getElementById('chaptersSection').style.display = 'block';
+          const chaptersList = document.getElementById('chaptersList');
+          chaptersList.innerHTML = manga.chapters.map(chapter => `
+            <div class="chapter-item" onclick="window.location.href='/read/${chapter.id}'">
+              <div class="chapter-info">
+                <h3>Chapter ${chapter.chapter_number}</h3>
+                <p>${chapter.title}</p>
+              </div>
+              <div>
+                <button class="btn">Read</button>
+              </div>
+            </div>
+          `).join('');
+        } else {
+          document.getElementById('chaptersSection').style.display = 'block';
+          document.getElementById('chaptersList').innerHTML = '<p style="color: var(--text-gray);">No chapters available yet.</p>';
+        }
+      } catch (error) {
+        document.getElementById('mangaDetail').innerHTML = '<p class="error">Failed to load manga details</p>';
+      }
+    }
+    
+    loadMangaDetails();
+  </script>
+</body>
+</html>

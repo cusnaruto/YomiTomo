@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reading - YomiTomo</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <a href="/" class="logo">YomiTomo</a>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/admin">Admin</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container">
+    <div id="chapterInfo" class="text-center">
+      <div class="loading">Loading chapter...</div>
+    </div>
+    
+    <div id="readerContainer" class="reader-container" style="display: none;">
+      <div id="pages"></div>
+      
+      <div class="reader-controls">
+        <button class="btn" id="backToManga">Back to Manga</button>
+      </div>
+    </div>
+    
+    <div id="commentsSection" class="comments-section" style="display: none;">
+      <h2>Comments</h2>
+      
+      <div class="form-group">
+        <label for="username">Your Name</label>
+        <input type="text" id="username" placeholder="Enter your name">
+      </div>
+      
+      <div class="form-group">
+        <label for="commentText">Your Comment</label>
+        <textarea id="commentText" placeholder="Share your thoughts about this chapter..."></textarea>
+      </div>
+      
+      <button class="btn" onclick="postComment()">Post Comment</button>
+      
+      <div id="commentsList" class="mt-2"></div>
+    </div>
+  </div>
+
+  <script>
+    const chapterId = window.location.pathname.split('/').pop();
+    let currentChapter = null;
+    
+    async function loadChapter() {
+      try {
+        const response = await fetch(`/api/chapter/${chapterId}`);
+        currentChapter = await response.json();
+        
+        document.title = `${currentChapter.manga_title} - Chapter ${currentChapter.chapter_number} - YomiTomo`;
+        
+        const infoDiv = document.getElementById('chapterInfo');
+        infoDiv.innerHTML = `
+          <h1 style="color: var(--primary-color);">${currentChapter.manga_title}</h1>
+          <h2 style="color: var(--text-light);">Chapter ${currentChapter.chapter_number}: ${currentChapter.title}</h2>
+        `;
+        
+        if (currentChapter.pages && currentChapter.pages.length > 0) {
+          const pagesDiv = document.getElementById('pages');
+          pagesDiv.innerHTML = currentChapter.pages.map(page => `
+            <img src="${page.image_path}" alt="Page ${page.page_number}" class="reader-page">
+          `).join('');
+          
+          document.getElementById('readerContainer').style.display = 'block';
+        } else {
+          infoDiv.innerHTML += '<p style="color: var(--text-gray);">No pages available for this chapter.</p>';
+        }
+        
+        // Load comments
+        document.getElementById('commentsSection').style.display = 'block';
+        displayComments();
+        
+        // Set up back button
+        document.getElementById('backToManga').onclick = () => {
+          window.location.href = `/manga/${currentChapter.manga_id}`;
+        };
+      } catch (error) {
+        document.getElementById('chapterInfo').innerHTML = '<p class="error">Failed to load chapter</p>';
+      }
+    }
+    
+    function displayComments() {
+      const commentsList = document.getElementById('commentsList');
+      
+      if (currentChapter.comments.length === 0) {
+        commentsList.innerHTML = '<p style="color: var(--text-gray);">No comments yet. Be the first to comment!</p>';
+        return;
+      }
+      
+      commentsList.innerHTML = currentChapter.comments.map(comment => {
+        const date = new Date(comment.created_at);
+        return `
+          <div class="comment">
+            <div class="comment-header">
+              <span class="comment-author">${comment.username}</span>
+              <span class="comment-date">${date.toLocaleDateString()} ${date.toLocaleTimeString()}</span>
+            </div>
+            <p class="comment-text">${comment.comment}</p>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    async function postComment() {
+      const username = document.getElementById('username').value.trim();
+      const commentText = document.getElementById('commentText').value.trim();
+      
+      if (!username || !commentText) {
+        alert('Please enter both your name and a comment');
+        return;
+      }
+      
+      try {
+        const response = await fetch('/api/comment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chapter_id: chapterId,
+            username,
+            comment: commentText
+          })
+        });
+        
+        if (response.ok) {
+          const newComment = await response.json();
+          currentChapter.comments.unshift(newComment);
+          displayComments();
+          document.getElementById('commentText').value = '';
+          
+          // Show success message
+          const successMsg = document.createElement('div');
+          successMsg.className = 'success';
+          successMsg.textContent = 'Comment posted successfully!';
+          document.getElementById('commentsSection').prepend(successMsg);
+          setTimeout(() => successMsg.remove(), 3000);
+        } else {
+          alert('Failed to post comment');
+        }
+      } catch (error) {
+        alert('Error posting comment');
+      }
+    }
+    
+    loadChapter();
+  </script>
+</body>
+</html>
