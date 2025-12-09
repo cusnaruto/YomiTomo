@@ -1,0 +1,446 @@
+:root {
+  --primary-color: #ffae42;
+  --background-dark: #1a1a1a;
+  --background-darker: #0f0f0f;
+  --text-light: #f0f0f0;
+  --text-gray: #b0b0b0;
+  --border-color: #333;
+  --hover-bg: #2a2a2a;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background-color: var(--background-dark);
+  color: var(--text-light);
+  line-height: 1.6;
+}
+
+/* Header */
+header {
+  background-color: var(--background-darker);
+  border-bottom: 2px solid var(--primary-color);
+  padding: 1rem 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+nav a {
+  color: var(--text-light);
+  text-decoration: none;
+  margin-left: 2rem;
+  transition: color 0.3s;
+}
+
+nav a:hover {
+  color: var(--primary-color);
+}
+
+/* Main Container */
+.container {
+  max-width: 1400px;
+  margin: 2rem auto;
+  padding: 0 2rem;
+}
+
+/* Bento Grid Layout */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.bento-item {
+  background-color: var(--background-darker);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.3s, border-color 0.3s;
+  cursor: pointer;
+}
+
+.bento-item:hover {
+  transform: translateY(-4px);
+  border-color: var(--primary-color);
+}
+
+.bento-item img {
+  width: 100%;
+  height: 350px;
+  object-fit: cover;
+  display: block;
+}
+
+.bento-item-content {
+  padding: 1.5rem;
+}
+
+.bento-item-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.bento-item-description {
+  color: var(--text-gray);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.bento-item-author {
+  color: var(--text-gray);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+/* Buttons */
+.btn {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--primary-color);
+  color: var(--background-dark);
+  text-decoration: none;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn:hover {
+  background-color: #ff9d1f;
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--primary-color);
+  border: 2px solid var(--primary-color);
+}
+
+.btn-secondary:hover {
+  background-color: var(--primary-color);
+  color: var(--background-dark);
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #c82333;
+}
+
+/* Forms */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: var(--background-darker);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-light);
+  font-size: 1rem;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.form-group textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* Chapter List */
+.chapter-list {
+  margin-top: 2rem;
+}
+
+.chapter-item {
+  background-color: var(--background-darker);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: border-color 0.3s;
+  cursor: pointer;
+}
+
+.chapter-item:hover {
+  border-color: var(--primary-color);
+}
+
+.chapter-info h3 {
+  color: var(--primary-color);
+  margin-bottom: 0.25rem;
+}
+
+.chapter-info p {
+  color: var(--text-gray);
+  font-size: 0.9rem;
+}
+
+.chapter-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Reader */
+.reader-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.reader-page {
+  max-width: 100%;
+  height: auto;
+  margin: 1rem 0;
+  border-radius: 8px;
+}
+
+.reader-controls {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin: 2rem 0;
+  flex-wrap: wrap;
+}
+
+/* Comments */
+.comments-section {
+  margin-top: 3rem;
+  padding: 2rem;
+  background-color: var(--background-darker);
+  border-radius: 12px;
+}
+
+.comments-section h2 {
+  color: var(--primary-color);
+  margin-bottom: 1.5rem;
+}
+
+.comment {
+  border-bottom: 1px solid var(--border-color);
+  padding: 1rem 0;
+}
+
+.comment:last-child {
+  border-bottom: none;
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.comment-author {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.comment-date {
+  color: var(--text-gray);
+  font-size: 0.85rem;
+}
+
+.comment-text {
+  color: var(--text-light);
+}
+
+/* Admin Panel */
+.admin-panel {
+  background-color: var(--background-darker);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.admin-panel h2 {
+  color: var(--primary-color);
+  margin-bottom: 1.5rem;
+}
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal.active {
+  display: flex;
+}
+
+.modal-content {
+  background-color: var(--background-dark);
+  border: 2px solid var(--primary-color);
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.modal-header h2 {
+  color: var(--primary-color);
+}
+
+.close-modal {
+  background: none;
+  border: none;
+  color: var(--text-light);
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+/* Utility Classes */
+.text-center {
+  text-align: center;
+}
+
+.mt-2 {
+  margin-top: 2rem;
+}
+
+.mb-2 {
+  margin-bottom: 2rem;
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-gray);
+}
+
+.error {
+  background-color: #dc3545;
+  color: white;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+.success {
+  background-color: #28a745;
+  color: white;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+/* Manga Detail Page */
+.manga-detail {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.manga-cover {
+  width: 100%;
+  border-radius: 12px;
+  border: 2px solid var(--primary-color);
+}
+
+.manga-info h1 {
+  color: var(--primary-color);
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.manga-info p {
+  color: var(--text-gray);
+  margin-bottom: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .manga-detail {
+    grid-template-columns: 1fr;
+  }
+  
+  .admin-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .header-content {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  nav a {
+    margin-left: 1rem;
+  }
+}

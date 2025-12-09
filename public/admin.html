@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - YomiTomo</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <a href="/" class="logo">YomiTomo</a>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/admin">Admin</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Login Section -->
+    <div id="loginSection" class="admin-panel">
+      <h2>Admin Login</h2>
+      <div id="loginMessage"></div>
+      <div class="form-group">
+        <label for="loginUsername">Username</label>
+        <input type="text" id="loginUsername">
+      </div>
+      <div class="form-group">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword">
+      </div>
+      <button class="btn" onclick="login()">Login</button>
+      <button class="btn btn-secondary" onclick="showCreateAdmin()">Create Admin Account</button>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel" style="display: none;">
+      <div class="admin-panel">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <h2>Admin Dashboard</h2>
+          <button class="btn btn-secondary" onclick="logout()">Logout</button>
+        </div>
+        
+        <div class="admin-grid">
+          <button class="btn" onclick="showAddManga()">Add New Manga</button>
+          <button class="btn btn-secondary" onclick="showAddChapter()">Add New Chapter</button>
+        </div>
+      </div>
+
+      <div class="admin-panel">
+        <h2>Manage Manga</h2>
+        <div id="mangaManageList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Manga Modal -->
+  <div id="mangaModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="mangaModalTitle">Add Manga</h2>
+        <button class="close-modal" onclick="closeMangaModal()">&times;</button>
+      </div>
+      <form id="mangaForm" onsubmit="saveManga(event)">
+        <input type="hidden" id="mangaId">
+        <div class="form-group">
+          <label for="mangaTitle">Title *</label>
+          <input type="text" id="mangaTitle" required>
+        </div>
+        <div class="form-group">
+          <label for="mangaAuthor">Author</label>
+          <input type="text" id="mangaAuthor">
+        </div>
+        <div class="form-group">
+          <label for="mangaDescription">Description</label>
+          <textarea id="mangaDescription"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="mangaCover">Cover Image</label>
+          <input type="file" id="mangaCover" accept="image/*">
+        </div>
+        <button type="submit" class="btn">Save Manga</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Chapter Modal -->
+  <div id="chapterModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Add Chapter</h2>
+        <button class="close-modal" onclick="closeChapterModal()">&times;</button>
+      </div>
+      <form id="chapterForm" onsubmit="saveChapter(event)">
+        <div class="form-group">
+          <label for="chapterManga">Manga *</label>
+          <select id="chapterManga" required></select>
+        </div>
+        <div class="form-group">
+          <label for="chapterNumber">Chapter Number *</label>
+          <input type="number" id="chapterNumber" step="0.1" required>
+        </div>
+        <div class="form-group">
+          <label for="chapterTitle">Title *</label>
+          <input type="text" id="chapterTitle" required>
+        </div>
+        <div class="form-group">
+          <label for="chapterPages">Chapter Pages (select multiple images)</label>
+          <input type="file" id="chapterPages" accept="image/*" multiple>
+          <small style="color: var(--text-gray);">Select images in order (page 1, page 2, etc.)</small>
+        </div>
+        <button type="submit" class="btn">Save Chapter</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Create Admin Modal -->
+  <div id="createAdminModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Create Admin Account</h2>
+        <button class="close-modal" onclick="closeCreateAdminModal()">&times;</button>
+      </div>
+      <div id="createAdminMessage"></div>
+      <form id="createAdminForm" onsubmit="createAdmin(event)">
+        <div class="form-group">
+          <label for="createUsername">Username *</label>
+          <input type="text" id="createUsername" required>
+        </div>
+        <div class="form-group">
+          <label for="createPassword">Password *</label>
+          <input type="password" id="createPassword" required>
+        </div>
+        <button type="submit" class="btn">Create Admin</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let isAdmin = false;
+
+    // Check admin status on load
+    async function checkAdminStatus() {
+      try {
+        const response = await fetch('/api/admin/status');
+        const data = await response.json();
+        isAdmin = data.isAdmin;
+        
+        if (isAdmin) {
+          document.getElementById('loginSection').style.display = 'none';
+          document.getElementById('adminPanel').style.display = 'block';
+          loadMangaList();
+        }
+      } catch (error) {
+        console.error('Failed to check admin status');
+      }
+    }
+
+    async function login() {
+      const username = document.getElementById('loginUsername').value;
+      const password = document.getElementById('loginPassword').value;
+      
+      try {
+        const response = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        
+        if (response.ok) {
+          document.getElementById('loginSection').style.display = 'none';
+          document.getElementById('adminPanel').style.display = 'block';
+          loadMangaList();
+        } else {
+          document.getElementById('loginMessage').innerHTML = '<p class="error">Invalid credentials</p>';
+        }
+      } catch (error) {
+        document.getElementById('loginMessage').innerHTML = '<p class="error">Login failed</p>';
+      }
+    }
+
+    async function logout() {
+      await fetch('/api/admin/logout', { method: 'POST' });
+      window.location.reload();
+    }
+
+    function showCreateAdmin() {
+      document.getElementById('createAdminModal').classList.add('active');
+    }
+
+    function closeCreateAdminModal() {
+      document.getElementById('createAdminModal').classList.remove('active');
+    }
+
+    async function createAdmin(event) {
+      event.preventDefault();
+      
+      const username = document.getElementById('createUsername').value;
+      const password = document.getElementById('createPassword').value;
+      
+      try {
+        const response = await fetch('/api/admin/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        
+        if (response.ok) {
+          document.getElementById('createAdminMessage').innerHTML = '<p class="success">Admin created successfully! You can now login.</p>';
+          setTimeout(() => {
+            closeCreateAdminModal();
+            document.getElementById('createAdminForm').reset();
+            document.getElementById('createAdminMessage').innerHTML = '';
+          }, 2000);
+        } else {
+          const data = await response.json();
+          document.getElementById('createAdminMessage').innerHTML = `<p class="error">${data.error}</p>`;
+        }
+      } catch (error) {
+        document.getElementById('createAdminMessage').innerHTML = '<p class="error">Failed to create admin</p>';
+      }
+    }
+
+    async function loadMangaList() {
+      try {
+        const response = await fetch('/api/manga');
+        const manga = await response.json();
+        
+        const list = document.getElementById('mangaManageList');
+        if (manga.length === 0) {
+          list.innerHTML = '<p style="color: var(--text-gray);">No manga yet. Add your first manga!</p>';
+          return;
+        }
+        
+        list.innerHTML = manga.map(m => `
+          <div class="chapter-item">
+            <div class="chapter-info">
+              <h3>${m.title}</h3>
+              <p>${m.author || 'Unknown author'}</p>
+            </div>
+            <div class="chapter-actions">
+              <button class="btn btn-secondary" onclick="editManga(${m.id})">Edit</button>
+              <button class="btn btn-danger" onclick="deleteManga(${m.id})">Delete</button>
+            </div>
+          </div>
+        `).join('');
+        
+        // Update chapter manga dropdown
+        const select = document.getElementById('chapterManga');
+        select.innerHTML = manga.map(m => `<option value="${m.id}">${m.title}</option>`).join('');
+      } catch (error) {
+        console.error('Failed to load manga list');
+      }
+    }
+
+    function showAddManga() {
+      document.getElementById('mangaModalTitle').textContent = 'Add Manga';
+      document.getElementById('mangaForm').reset();
+      document.getElementById('mangaId').value = '';
+      document.getElementById('mangaModal').classList.add('active');
+    }
+
+    function closeMangaModal() {
+      document.getElementById('mangaModal').classList.remove('active');
+    }
+
+    async function editManga(id) {
+      try {
+        const response = await fetch(`/api/manga/${id}`);
+        const manga = await response.json();
+        
+        document.getElementById('mangaModalTitle').textContent = 'Edit Manga';
+        document.getElementById('mangaId').value = manga.id;
+        document.getElementById('mangaTitle').value = manga.title;
+        document.getElementById('mangaAuthor').value = manga.author || '';
+        document.getElementById('mangaDescription').value = manga.description || '';
+        
+        document.getElementById('mangaModal').classList.add('active');
+      } catch (error) {
+        alert('Failed to load manga details');
+      }
+    }
+
+    async function saveManga(event) {
+      event.preventDefault();
+      
+      const formData = new FormData();
+      formData.append('title', document.getElementById('mangaTitle').value);
+      formData.append('author', document.getElementById('mangaAuthor').value);
+      formData.append('description', document.getElementById('mangaDescription').value);
+      
+      const coverFile = document.getElementById('mangaCover').files[0];
+      if (coverFile) {
+        formData.append('cover', coverFile);
+      }
+      
+      const mangaId = document.getElementById('mangaId').value;
+      const url = mangaId ? `/api/admin/manga/${mangaId}` : '/api/admin/manga';
+      const method = mangaId ? 'PUT' : 'POST';
+      
+      try {
+        const response = await fetch(url, {
+          method,
+          body: formData
+        });
+        
+        if (response.ok) {
+          closeMangaModal();
+          loadMangaList();
+        } else {
+          alert('Failed to save manga');
+        }
+      } catch (error) {
+        alert('Error saving manga');
+      }
+    }
+
+    async function deleteManga(id) {
+      if (!confirm('Are you sure you want to delete this manga? This will also delete all its chapters.')) {
+        return;
+      }
+      
+      try {
+        const response = await fetch(`/api/admin/manga/${id}`, {
+          method: 'DELETE'
+        });
+        
+        if (response.ok) {
+          loadMangaList();
+        } else {
+          alert('Failed to delete manga');
+        }
+      } catch (error) {
+        alert('Error deleting manga');
+      }
+    }
+
+    function showAddChapter() {
+      document.getElementById('chapterForm').reset();
+      document.getElementById('chapterModal').classList.add('active');
+    }
+
+    function closeChapterModal() {
+      document.getElementById('chapterModal').classList.remove('active');
+    }
+
+    async function saveChapter(event) {
+      event.preventDefault();
+      
+      const formData = new FormData();
+      formData.append('manga_id', document.getElementById('chapterManga').value);
+      formData.append('chapter_number', document.getElementById('chapterNumber').value);
+      formData.append('title', document.getElementById('chapterTitle').value);
+      
+      const pageFiles = document.getElementById('chapterPages').files;
+      for (let i = 0; i < pageFiles.length; i++) {
+        formData.append('pages', pageFiles[i]);
+      }
+      
+      try {
+        const response = await fetch('/api/admin/chapter', {
+          method: 'POST',
+          body: formData
+        });
+        
+        if (response.ok) {
+          closeChapterModal();
+          alert('Chapter added successfully!');
+        } else {
+          alert('Failed to save chapter');
+        }
+      } catch (error) {
+        alert('Error saving chapter');
+      }
+    }
+
+    checkAdminStatus();
+  </script>
+</body>
+</html>
