@@ -1,6 +1,7 @@
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
+const fs = require('fs');
 const multer = require('multer');
 const bcrypt = require('bcrypt');
 const db = require('./database');
@@ -14,7 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 app.use('/uploads', express.static('uploads'));
 app.use(session({
-  secret: 'yomitomo-secret-key-change-in-production',
+  secret: process.env.SESSION_SECRET || 'yomitomo-secret-key-change-in-production',
   resave: false,
   saveUninitialized: false,
   cookie: { secure: false }
@@ -23,7 +24,6 @@ app.use(session({
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const fs = require('fs');
     const dir = './uploads';
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
