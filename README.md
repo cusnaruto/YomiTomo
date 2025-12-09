@@ -122,6 +122,18 @@ YomiTomo/
 - `PUT /api/admin/chapter/:id` - Update chapter
 - `DELETE /api/admin/chapter/:id` - Delete chapter
 
+## Security Considerations
+
+This is a basic implementation suitable for personal use or development. For production deployment, consider:
+
+- **Rate Limiting**: Add rate limiting middleware (e.g., `express-rate-limit`) to prevent abuse
+- **CSRF Protection**: Implement CSRF tokens for form submissions (e.g., `csurf`)
+- **HTTPS**: Use HTTPS in production (set `NODE_ENV=production` for secure cookies)
+- **Input Validation**: Add comprehensive input validation and sanitization
+- **File Upload Limits**: Configure file size limits and file type validation
+- **Database Security**: Use prepared statements (already implemented with SQLite3)
+- **Session Secret**: Always use a strong, unique `SESSION_SECRET` environment variable in production
+
 ## License
 
 MIT
